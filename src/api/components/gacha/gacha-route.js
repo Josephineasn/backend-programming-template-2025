@@ -7,7 +7,6 @@ const route = express.Router();
 module.exports = (app) => {
   app.use('/users', route);
 
-  // Ganti .gacha menjadi .mainGacha
   route.post('/gacha', gachaController.mainGacha);
   route.put('/:userId/gacha', gachaController.mainGacha);
 
