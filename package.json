@@ -18,7 +18,10 @@
     "express": "^4.21.2",
     "express-async-errors": "^3.1.1",
     "method-override": "^3.0.0",
+<<<<<<< HEAD
     "mongodb": "^7.1.1",
+=======
+>>>>>>> 5f97ff6195b432a130dc1a63adae8e309465a4b6
     "mongoose": "^8.12.2",
     "pino": "^9.6.0",
     "pino-http": "^10.4.0"
