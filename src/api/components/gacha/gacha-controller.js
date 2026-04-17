@@ -1,31 +1,32 @@
 /* eslint-disable no-underscore-dangle */
-/* eslint-disable prettier/prettier */
-/* eslint-disable no-restricted-syntax */
-/* eslint-disable no-await-in-loop */
+
 const gachaService = require('./gacha-service');
 const usersService = require('../users/users-service');
 const { errorResponder, errorTypes } = require('../../../core/errors');
 
-async function gacha(request, response, next) {
+async function mainGacha(request, response, next) {
   try {
     const user = await usersService.getUser(request.params.userId);
 
     if (!user) {
-      throw errorResponder(errorTypes.UNPROCESSABLE_ENTITY, 'User not found');
+      throw errorResponder(
+        errorTypes.UNPROCESSABLE_ENTITY,
+        'User tidak ditemukan'
+      );
     }
 
-    const sekarang = new Date();
-    const tanggalHariIni = sekarang.toDateString();
+    const now = new Date();
+    const tanggalHariIni = now.toDateString();
 
-    const tglTerakhir =
+    const tanggalTerakhir =
       user.lastDate && user.lastDate !== 0
         ? new Date(user.lastDate).toDateString()
         : null;
 
-    let jumlahGachaYgBaru;
+    let jumlahGachaYangBaru;
 
-    if (tglTerakhir !== tanggalHariIni) {
-      jumlahGachaYgBaru = 1;
+    if (tanggalTerakhir !== tanggalHariIni) {
+      jumlahGachaYangBaru = 1;
     } else {
       const gachaCount = user.banyakGacha || 0;
       if (gachaCount >= 5) {
@@ -35,7 +36,7 @@ async function gacha(request, response, next) {
         );
         // return { error: 'Gacha maksimal 5x sehari, coba lagi besok' };
       }
-      jumlahGachaYgBaru = gachaCount + 1;
+      jumlahGachaYangBaru = gachaCount + 1;
     }
 
     const daftarHadiah = [
@@ -46,26 +47,24 @@ async function gacha(request, response, next) {
       { nama: 'Pulsa Rp 50.000', kuota: 500 },
     ];
 
-    let hadiahYgDidapat = null;
+    /* eslint-disable no-await-in-loop */
+    let hadiahYangDiDapat = null;
 
-    for (const h of daftarHadiah) {
-      const ttlPemenang = await gachaService.countWinners(h.nama);
+    for (let i = 0; i < daftarHadiah.length; i += 1) {
+      const h = daftarHadiah[i];
+      const totalSemuaPemenang = await gachaService.countWinners(h.nama);
 
-      if (ttlPemenang < h.kuota) {
-        hadiahYgDidapat = h.nama;
+      if (totalSemuaPemenang < h.kuota) {
+        hadiahYangDiDapat = h.nama;
 
-        await gachaService.createRewardLog(
-          user._id,
-          user.fullName,
-          hadiahYgDidapat
-        );
+        const { _id: userId, fullName } = user;
+        await gachaService.createRewardLog(userId, fullName, hadiahYangDiDapat);
         break;
       }
     }
-
-    const success = await usersService.gacha(
+    const success = await usersService.mainGacha(
       request.params.userId,
-      jumlahGachaYgBaru,
+      jumlahGachaYangBaru,
       tanggalHariIni
     );
 
@@ -77,13 +76,13 @@ async function gacha(request, response, next) {
     }
 
     return response.status(200).json({
-      message: hadiahYgDidapat
-        ? `Selamat!! Anda menang ${hadiahYgDidapat}`
+      message: hadiahYangDiDapat
+        ? `Selamat!! Anda menang ${hadiahYangDiDapat}`
         : 'Informasi tidak memenangkan hadiah apapun',
       data: {
-        hadiah: hadiahYgDidapat,
-        banyakGacha: jumlahGachaYgBaru,
-        sisaKesempatan: 5 - jumlahGachaYgBaru,
+        hadiah: hadiahYangDiDapat,
+        banyakGacha: jumlahGachaYangBaru,
+        sisaKesempatan: 5 - jumlahGachaYangBaru,
       },
     });
   } catch (error) {
@@ -119,7 +118,7 @@ async function getAllWinners(request, response, next) {
 }
 
 module.exports = {
-  gacha,
+  mainGacha,
   getMyHistory,
   getRemainKuota,
   getAllWinners,

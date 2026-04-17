@@ -1,6 +1,3 @@
-/* eslint-disable no-else-return */
-/* eslint-disable no-await-in-loop */
-/* eslint-disable no-restricted-syntax */
 const gachaRepository = require('./gacha-repository');
 
 async function countWinners(hadiah) {
@@ -27,11 +24,11 @@ function sensorName(name) {
 
       if (style === 0) {
         return word[0] + '*'.repeat(word.length - 2) + word[word.length - 1];
-      } else if (style === 1) {
-        return '*'.repeat(word.length - 2) + word.substring(word.length - 2);
-      } else {
-        return word.substring(0, 2) + '*'.repeat(word.length - 2);
       }
+      if (style === 1) {
+        return '*'.repeat(word.length - 2) + word.substring(word.length - 2);
+      }
+      return word.substring(0, 2) + '*'.repeat(word.length - 2);
     })
     .join(' ');
 }
@@ -45,7 +42,7 @@ async function getAllWinners() {
   return winners.map((w) => ({
     namaHadiah: w.namaHadiah,
     userName: sensorName(w.userName),
-    menangPada: w.menangPada,
+    waktuMenang: w.waktuMenang,
   }));
 }
 
@@ -58,15 +55,30 @@ async function getRemainKuota() {
     { nama: 'Pulsa Rp 50.000', kuota: 500 },
   ];
 
-  const statusHadiah = [];
-  for (const h of daftarHadiah) {
-    const terpakai = await gachaRepository.countWinners(h.nama);
-    statusHadiah.push({
-      namaHadiah: h.nama,
-      sisaKuota: h.kuota - terpakai,
-    });
-  }
+  const statusHadiah = await Promise.all(
+    daftarHadiah.map(async (h) => {
+      const hadiahYangTerpakai = await gachaRepository.countWinners(h.nama);
+      return {
+        namaHadiah: h.nama,
+        sisaKuota: h.kuota - hadiahYangTerpakai,
+      };
+    })
+  );
   return statusHadiah;
+}
+
+async function tentukanHadiah(daftarHadiah, userId, fullName) {
+  /* eslint-disable no-await-in-loop */
+  for (let i = 0; i < daftarHadiah.length; i += 1) {
+    const h = daftarHadiah[i];
+    const totalPemenang = await gachaRepository.countWinners(h.nama);
+
+    if (totalPemenang < h.kuota) {
+      await gachaRepository.createRewardLog(userId, fullName, h.nama);
+      return h.nama;
+    }
+  }
+  return null;
 }
 
 module.exports = {
@@ -75,4 +87,5 @@ module.exports = {
   getMyHistory,
   getAllWinners,
   getRemainKuota,
+  tentukanHadiah,
 };
