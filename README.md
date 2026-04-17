@@ -35,12 +35,12 @@ Hadiah Gacha :
 
 # Cara Pakai (API Endpoints), bikin route nya di gacha-route.js #
 - Bagian User
-Daftar User: POST http://localhost:5000/api/users (Masukin email, password, confirm_password sama full_name).
-Cek Semua User: GET http://localhost:5000/api/users (Buat ngecek siapa aja yang sudah terdaftar.)
+> Daftar User: POST http://localhost:5000/api/users (Masukin email, password, confirm_password sama full_name).
+> Cek Semua User: GET http://localhost:5000/api/users (Buat ngecek siapa aja yang sudah terdaftar.)
 
 - Bagian Gacha
-Main Gacha: PUT http://localhost:5000/api/users/:userId(Id user yang udah didaftarin)/gacha. (Ini endpoint buat nge gacha nya)
-Cek History: GET http://localhost:5000/api/users/:userId(Id user yang udah didaftarin)/gacha/history. (Buat lihat user sudah dapet hadiah apa aja.)
-Cek Sisa Stok Hadiah: GET http://localhost:5000/api/users/gacha/quota.(Buat lihat hadiah apa aja yang masih sisa)
-Daftar Pemenang: GET http://localhost:5000/api/users/gacha/winners. (Lihat semua orang yang menang di sistem ini.)
+> Main Gacha: PUT http://localhost:5000/api/users/:userId(Id user yang udah didaftarin)/gacha. (Ini endpoint buat nge gacha nya)
+> Cek History: GET http://localhost:5000/api/users/:userId(Id user yang udah didaftarin)/gacha/history. (Buat lihat user sudah dapet hadiah apa aja.)
+> Cek Sisa Stok Hadiah: GET http://localhost:5000/api/users/gacha/quota.(Buat lihat hadiah apa aja yang masih sisa)
+> Daftar Pemenang: GET http://localhost:5000/api/users/gacha/winners. (Lihat semua orang yang menang di sistem ini.)
 
